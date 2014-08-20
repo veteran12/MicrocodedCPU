@@ -1,0 +1,46 @@
+# A small set of microinstructions for the CPU
+# (c) GPL3 Warren Toomey, 2012
+#
+
+fetch:	addrsel=pc irload=1
+	pcload=1  pcsel=pc, opcode_jump
+#
+# ALU operations on Rd,Rs,Rt
+0:	aluop=add  op2sel=treg  dwrite=1  regsrc=aluout, goto fetch
+
+#
+# ALU operations on Rd,Rs,Rt
+1:      aluop=sub op2sel=treg  dwrite=1 regsrc=aluout, goto fetch
+
+#
+# ALU operations on Rd,Rs,Rt
+2:     aluop=mul op2sel=treg  dwrite=1 regsrc=aluout, goto fetch
+
+#
+# ALU operations on Rd,Rs,Rt
+3:     aluop=div op2sel=treg  dwrite=1 regsrc=aluout, goto fetch
+
+
+#
+# Jump compared to zero operations
+#
+# JNEZ Rs,immed
+40:	addrsel=pc  imload=1
+	aluop=sub  op2sel=0, if z then pcincr else jump
+
+#
+# Load immediate Rd, immed
+63:	addrsel=pc  dwrite=1  regsrc=databus
+	pcload=1  pcsel=pc, goto fetch
+#
+
+#
+# Store Rd into address from immed
+65:	addrsel=pc  imload=1
+	addrsel=immed  datawrite=1  datasel=dreg
+	pcload=1  pcsel=pc, goto fetch
+
+#
+# Other code which we call
+pcincr:	pcload=1  pcsel=pc, goto fetch
+jump:	pcload=1  pcsel=immed, goto fetch
